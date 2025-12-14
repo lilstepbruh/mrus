@@ -2,7 +2,6 @@ pipeline {
   agent any
 
   environment {
-    DEPLOY_USER = "stepbruh"
     DEPLOY_HOST = "158.160.142.78"
     DEPLOY_DIR  = "/opt/mrus"
     REPO_URL    = "https://github.com/lilstepbruh/mrus.git"
@@ -10,13 +9,14 @@ pipeline {
   }
 
   stages {
-    stage("Checkout") {
+
+    stage("Checkout (CI)") {
       steps {
-        git branch: 'master', url: "${REPO_URL}"
+        git branch: "${BRANCH}", url: "${REPO_URL}"
       }
     }
 
-    stage("Deploy") {
+    stage("Deploy to VM") {
       steps {
         withCredentials([
           sshUserPrivateKey(
@@ -28,12 +28,19 @@ pipeline {
           sh """
             ssh -i $SSH_KEY -o StrictHostKeyChecking=no $SSH_USER@${DEPLOY_HOST} '
               set -e
+
               if [ ! -d ${DEPLOY_DIR}/.git ]; then
+                echo ">>> First deploy: cloning repo"
                 git clone ${REPO_URL} ${DEPLOY_DIR}
               fi
+
               cd ${DEPLOY_DIR}
-              git fetch --all
-              git reset --hard origin/master
+
+              echo ">>> Updating code"
+              git fetch origin
+              git reset --hard origin/${BRANCH}
+
+              echo ">>> Docker compose deploy"
               docker compose down
               docker compose up -d --build
             '
