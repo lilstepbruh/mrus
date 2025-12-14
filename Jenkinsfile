@@ -33,7 +33,7 @@ pipeline {
               fi
               cd ${DEPLOY_DIR}
               git fetch --all
-              git reset --hard origin/main
+              git reset --hard origin/master
               docker compose down
               docker compose up -d --build
             '
