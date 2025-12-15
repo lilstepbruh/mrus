@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   environment {
-    DEPLOY_HOST = "158.160.142.78"
+    DEPLOY_HOST = "158.160.214.225"
     DEPLOY_DIR  = "/opt/mrus"
     REPO_URL    = "https://github.com/lilstepbruh/mrus.git"
     BRANCH      = "master"
